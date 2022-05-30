@@ -2,22 +2,22 @@
 #                             PARAMETERS                                  #
 ###########################################################################
 
-partitioning=qt	    # gd or qt
+partitioning=gd	    # gd or qt
 mode=bf                       # bf or ps
 phase15=centroid                    # mbr or centroid
 heuristics=true                # true or false
 fastSums=true                 # true or false
 K=10
-reducers=2
-nameNode=panagiotis-lubuntu
-N=100
+reducers=32
+nameNode=Hadoopmaster
+N=1000
 treeFile=qtree.ser
 treeDir=sampletree
 trainingDir=input
 queryDir=input
-queryDataset=query-dataset.txt
+queryDataset=linearwaterNNew_sub_2.8M.txt
 sortedQueryFile=qpoints_sorted.ser
-trainingDataset=NApppointNNew.txt
+trainingDataset=paskrsNNew_obj.txt
 mbrCentroidFile=mbrcentroid.txt
 overlapsFile=overlaps.txt
 gnnDir=gnn

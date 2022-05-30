@@ -1,9 +1,9 @@
 # execute (<namenode name> <hdfs dir name> <query dataset> <hdfs GNN dir name> <step> <mindist> <counter_limit> <pointdist>)
 
 hadoop jar ./target/hadoop-prepartitioning-0.0.1-SNAPSHOT.jar gr.uth.ece.dsel.hadoop_prepartitioning.preliminary.MbrCentroid \
-nameNode=panagiotis-lubuntu \
+nameNode=Hadoopmaster \
 queryDir=input \
-queryDataset=query-dataset.txt \
+queryDataset=linearwaterNNew_sub_2.8M.txt \
 gnnDir=gnn \
 step=0.000001 \
 minDist=10 \
