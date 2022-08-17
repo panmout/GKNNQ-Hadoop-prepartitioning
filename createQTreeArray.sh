@@ -12,7 +12,7 @@ capacity=10
 ###########################################################################
 #                                    EXECUTE                              # ###########################################################################
 
-hadoop jar ./target/hadoop-prepartitioning-0.0.1-SNAPSHOT.jar \
+hadoop jar ./target/gknn-hadoop-prepartitioning-0.0.1-SNAPSHOT.jar \
 gr.uth.ece.dsel.hadoop_prepartitioning.preliminary.QuadtreeArray \
 nameNode=$nameNode \
 trainingDir=$trainingDir \

@@ -31,7 +31,7 @@ mr3outputPath=mapreduce3
 #                                    EXECUTE                              #
 ###########################################################################
 
-hadoop jar ./target/hadoop-prepartitioning-0.0.1-SNAPSHOT.jar gr.uth.ece.dsel.hadoop_prepartitioning.main.Gnn \
+hadoop jar ./target/gknn-hadoop-prepartitioning-0.0.1-SNAPSHOT.jar gr.uth.ece.dsel.hadoop_prepartitioning.main.Gnn \
 partitioning=$partitioning \
 mode=$mode \
 phase15=$phase15 \
