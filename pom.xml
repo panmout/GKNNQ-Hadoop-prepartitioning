@@ -8,9 +8,9 @@
   <artifactId>gknn-hadoop-prepartitioning</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
-  <name>hadoop-prepartitioning</name>
+  <name>gknn-hadoop-prepartitioning</name>
   <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+  <url>https://github.com/panmout/GKNNQ-Hadoop-prepartitioning</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
