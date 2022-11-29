@@ -5,8 +5,8 @@ gr/uth/ece/dsel/hadoop_prepartitioning/util/Node.class
 gr/uth/ece/dsel/hadoop_prepartitioning/phase3_5/Phase3_5.class
 gr/uth/ece/dsel/hadoop_prepartitioning/main/Gnn.class
 gr/uth/ece/dsel/hadoop_prepartitioning/util/IdDist.class
-gr/uth/ece/dsel/hadoop_prepartitioning/phase1/Driver1.class
 gr/uth/ece/dsel/hadoop_prepartitioning/util/takeSample/SampleDriver.class
+gr/uth/ece/dsel/hadoop_prepartitioning/phase1/Driver1.class
 gr/uth/ece/dsel/hadoop_prepartitioning/phase2/Driver2.class
 gr/uth/ece/dsel/hadoop_prepartitioning/partition/Driver_partition.class
 gr/uth/ece/dsel/hadoop_prepartitioning/util/takeSample/SampleReducer$1.class
@@ -23,10 +23,10 @@ gr/uth/ece/dsel/hadoop_prepartitioning/util/Point.class
 gr/uth/ece/dsel/hadoop_prepartitioning/util/CreateQTreeArray.class
 gr/uth/ece/dsel/hadoop_prepartitioning/preliminary/SortQueryPoints.class
 gr/uth/ece/dsel/hadoop_prepartitioning/phase3/Mapper3.class
-gr/uth/ece/dsel/hadoop_prepartitioning/phase1/Mapper1.class
 gr/uth/ece/dsel/hadoop_prepartitioning/phase2/Mapper2.class
-gr/uth/ece/dsel/hadoop_prepartitioning/preliminary/MbrCentroid.class
 gr/uth/ece/dsel/hadoop_prepartitioning/util/CropDataset.class
+gr/uth/ece/dsel/hadoop_prepartitioning/preliminary/MbrCentroid.class
+gr/uth/ece/dsel/hadoop_prepartitioning/phase1/Mapper1.class
 gr/uth/ece/dsel/hadoop_prepartitioning/phase3/Driver3$Metrics.class
 gr/uth/ece/dsel/hadoop_prepartitioning/util/PointXComparator.class
 gr/uth/ece/dsel/hadoop_prepartitioning/util/LearningRateTest.class
