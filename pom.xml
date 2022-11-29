@@ -8,7 +8,7 @@
   <artifactId>gknnq-hadoop-prepartitioning</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
-  <name>hadoop-prepartitioning</name>
+  <name>gknnq-hadoop-prepartitioning</name>
   <url>https://github.com/panmout/GKNNQ-Hadoop-prepartitioning</url>
 
   <properties>
