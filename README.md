@@ -29,8 +29,8 @@ If *plane sweep* method is selected, then the script file *SortQueryPoints.sh* m
 The algorithm also needs to find the boundaries of the *query* dataset MBR and the coordinates of its centroid. Edit and run the *mbrCentroid.sh* script file.
 
 Finally, user must edit script file *gnn.sh* and provide the appropriate parameters:
-- partitioning: *gd* or *qt* for grid or quad tree partitioning, respectively
-- mode: *bf* or *ps* for brute force and quad tree computational methods, respectively
+- partitioning: *gd* or *qt* for *grid* and *quad tree* partitioning, respectively
+- mode: *bf* or *ps* for *brute force* and *plane sweep* computational methods, respectively
 - phase15: *MBR* or *centroid*, selects the desired refining method
 - heuristics: *true* or *false* to turn the pruning heuristics on or off
 - fastSums: *true* or *false* to turn the fast sums computational method on or off
