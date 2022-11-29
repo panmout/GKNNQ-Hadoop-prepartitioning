@@ -1,8 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: gr.uth.ece.dsel.hadoop_prepartitioning.AppTest
 -------------------------------------------------------------------------------
-<<<<<<< HEAD
 Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.184 s - in gr.uth.ece.dsel.hadoop_prepartitioning.AppTest
-=======
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.276 s - in gr.uth.ece.dsel.hadoop_prepartitioning.AppTest
->>>>>>> 266989d (Update README.md)
