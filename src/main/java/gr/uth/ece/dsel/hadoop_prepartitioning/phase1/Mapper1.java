@@ -11,19 +11,17 @@ import java.io.IOException;
 
 public class Mapper1 extends Mapper<LongWritable, Text, Text, IntWritable>
 {
-	private String cell;
-	private int num_points;
-	
+
 	@Override
 	public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException
 	{
 		String line = value.toString(); // read a line
 		
 		String[] data = GnnFunctions.stringToArray(line, "\t");
-		
-		cell = data[0];
-		
-		num_points = (data.length - 1) / 3;
+
+		String cell = data[0];
+
+		int num_points = (data.length - 1) / 3;
 		
 		// increment cells number
 		context.getCounter(Metrics.NUM_CELLS).increment(1);

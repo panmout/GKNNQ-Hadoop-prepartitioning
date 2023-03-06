@@ -16,20 +16,14 @@ public final class PointYComparator  implements Comparator<Point>
 	}
 	
 	@Override
-	public final int compare(Point element1, Point element2)
+	public int compare(Point element1, Point element2)
 	{
 		if (element1.getY() < element2.getY())
-		{
 			return this.a;
-		}
 		else if (element1.getY() == element2.getY())
-		{
 			return 0;
-		}
 		else
-		{
 			return -this.a;
-		}
 	}
 
 }

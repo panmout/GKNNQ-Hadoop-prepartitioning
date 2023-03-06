@@ -15,21 +15,15 @@ import gr.uth.ece.dsel.hadoop_prepartitioning.util.ReadHdfsFiles;
 public class Mapper_partition extends Mapper<LongWritable, Text, Text, Text>
 {
 	private String partitioning; // bf or qt
-	private String hostname; // hostname
-	private String username; // username
-	private String treeDir; // HDFS dir containing tree file
-	private String treeFileName; // tree file name in HDFS
-	private String treeFile; // full HDFS path to tree file
 	private Node root; // create root node
 	private int N; // N*N cells
-	private String line;
 	private String cell;
 	
 	@Override
 	public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException
 	{
-		line = value.toString(); // read a line
-		
+		String line = value.toString(); // read a line
+
 		Point p = GnnFunctions.stringToPoint(line, "\t");
 		
 		if (partitioning.equals("qt")) // quadtree cell
@@ -50,11 +44,16 @@ public class Mapper_partition extends Mapper<LongWritable, Text, Text, Text>
 		
 		if (partitioning.equals("qt"))
 		{
-			hostname = conf.get("namenode"); // get namenode name
-			username = System.getProperty("user.name"); // get user name
-			treeDir = conf.get("treeDir"); // HDFS directory containing tree file
-			treeFileName = conf.get("treeFileName"); // get tree filename
-			treeFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, treeDir, treeFileName); // full HDFS path to tree file
+			// hostname
+			String hostname = conf.get("namenode"); // get namenode name
+			// username
+			String username = System.getProperty("user.name"); // get user name
+			// HDFS dir containing tree file
+			String treeDir = conf.get("treeDir"); // HDFS directory containing tree file
+			// tree file name in HDFS
+			String treeFileName = conf.get("treeFileName"); // get tree filename
+			// full HDFS path to tree file
+			String treeFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, treeDir, treeFileName); // full HDFS path to tree file
 			FileSystem fs = FileSystem.get(conf); // get filesystem type from configuration
 			
 			root = ReadHdfsFiles.getTree(treeFile, fs);

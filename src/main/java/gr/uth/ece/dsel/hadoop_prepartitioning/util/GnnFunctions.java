@@ -1,14 +1,14 @@
 package gr.uth.ece.dsel.hadoop_prepartitioning.util;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.PriorityQueue;
 import org.apache.hadoop.mapreduce.Mapper.Context;
+
+import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 public final class GnnFunctions
 {	
 	// String to point
-	public static final Point stringToPoint(String line, String sep)
+	public static Point stringToPoint(String line, String sep)
 	{
 		final String[] data = stringToArray(line, sep);
 		final int id = Integer.parseInt(data[0]);
@@ -18,13 +18,13 @@ public final class GnnFunctions
 	}
 	
 	// Split string to data array
-	public static final String[] stringToArray(String line, String sep)
+	public static String[] stringToArray(String line, String sep)
 	{
 		return line.trim().split(sep);
 	}
 	
 	// point to GD cell
-	public static final String pointToCellGD(Point p, int n)
+	public static String pointToCellGD(Point p, int n)
 	{
 		/*
 		Cell array (numbers inside cells are cell_id)
@@ -60,44 +60,36 @@ public final class GnnFunctions
 	}
 	
 	// node to cell
-	public static final String nodeToCell(Node node)
+	public static String nodeToCell(Node node)
 	{
 		return pointToCellQT((node.getXmin() + node.getXmax()) / 2, (node.getYmin() + node.getYmax()) / 2, node);
 	}
 	
 	// point to QT cell
-	public static final String pointToCellQT(double x, double y, Node node)
+	public static String pointToCellQT(double x, double y, Node node)
 	{
 		if (node.getNW() != null)
 		{
 			if (x >= node.getXmin() && x < (node.getXmin() + node.getXmax()) / 2) // point inside SW or NW
 			{
 				if (y >= node.getYmin() && y < (node.getYmin() + node.getYmax()) / 2) // point inside SW
-				{
 					return "2" + pointToCellQT(x, y, node.getSW());
-				}
 				else if (y >= (node.getYmin() + node.getYmax()) / 2 && y < node.getYmax()) // point inside NW
-				{
 					return "0" + pointToCellQT(x, y, node.getNW());
-				}
 			}
 			else if (x >= (node.getXmin() + node.getXmax()) / 2 && x < node.getXmax()) // point inside SE or NE
 			{
 				if (y >= node.getYmin() && y < (node.getYmin() + node.getYmax()) / 2) // point inside SE
-				{
 					return "3" + pointToCellQT(x, y, node.getSE());
-				}
 				else if (y >= (node.getYmin() + node.getYmax()) / 2 && y < node.getYmax()) // point inside NE
-				{
 					return "1" + pointToCellQT(x, y, node.getNE());
-				}
 			}
 		}
-		return new String("");
+		return "";
 	}
 	
 	// cell pruning heuristics (Mapper 3.1)
-	public static final boolean heuristics123(double x0, double y0, double ds, double[] mbrCentroid, ArrayList<Point> qpoints, double bestDist, boolean fastSums, boolean heuristics, Context context)
+	public static boolean heuristics123(double x0, double y0, double ds, double[] mbrCentroid, ArrayList<Point> qpoints, double bestDist, boolean fastSums, boolean heuristics, Context context)
 	{
 		// read MBR coordinates
 	    final double xmin = mbrCentroid[0];
@@ -112,10 +104,10 @@ public final class GnnFunctions
 	    
 	    final int qsize = qpoints.size();
  		
-		Boolean bool = true; // pruning flag (true --> pass, false --> prune)
+		boolean bool = true; // pruning flag (true --> pass, false --> prune)
 		
 		// heuristic 1 (single point method), prune if: minDist(cell, centroid) >= [bestDist + sumDist(centroid, Q)] / |Q|
-		if (bool == true && heuristics == true)
+		if (bool && heuristics)
 		{
 			final double dist = pointSquareDistance(xc, yc, x0, y0, x0 + ds, y0 + ds);
 			
@@ -129,7 +121,7 @@ public final class GnnFunctions
 		}
 		
 		// heuristic 2 (minimum bounding method), prune if: minDist(cell, MBR) >= bestDist / |Q|
-		if (bool == true && heuristics == true)
+		if (bool && heuristics)
 		{
 			// increment heuristic 1 fail
 			context.getCounter(Metrics.HEUR1_FAIL).increment(1);
@@ -145,7 +137,7 @@ public final class GnnFunctions
 		}
 			
 		// heuristic 3 (2nd minimum bounding method), prune if: minDist(cell, Q) >= bestDist
-		if (bool == true && heuristics == true)
+		if (bool && heuristics)
 		{
 			// increment heuristic 2 fail
 			context.getCounter(Metrics.HEUR2_FAIL).increment(1);
@@ -156,7 +148,7 @@ public final class GnnFunctions
 			{
 				sumDistCellQ += pointSquareDistance(q.getX(), q.getY(), x0, y0, x0 + ds, y0 + ds);
 				
-				if (fastSums == true && sumDistCellQ >= bestDist) // fast sums
+				if (fastSums && sumDistCellQ >= bestDist) // fast sums
 					break;
 			}
 			if (sumDistCellQ >= bestDist)
@@ -174,56 +166,54 @@ public final class GnnFunctions
 	}
 	
 	// heuristic 4 - true => pass
-	public static final boolean heuristic4(int qsize, double dpc, double dm, double sumDistcQ)
+	public static boolean heuristic4(int qsize, double dpc, double dm, double sumDistcQ)
 	{
 		return (qsize * dpc < dm + sumDistcQ);
 	}
 	
 	// return euclidean distance between two points (x1, y1) and (x2, y2)
-	public static final double distance(double x1, double y1, double x2, double y2)
+	public static double distance(double x1, double y1, double x2, double y2)
 	{
 		return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 	}
 	
 	// calculate sum of distances from a tpoint to all qpoints
-	public static final double calcSumDistQ(Point tpoint, ArrayList<Point> queryPoints, boolean fastSums, double dist)
+	public static double calcSumDistQ(Point tpoint, ArrayList<Point> queryPoints, boolean fastSums, double dist)
 	{				
 		double sumdist = 0;
 		for (Point qpoint : queryPoints)
 		{
 			sumdist += distance(qpoint.getX(), qpoint.getY(), tpoint.getX(), tpoint.getY());
 			
-			if (fastSums == true && dist > 0 && sumdist > dist) // if fastSums == true break loop
+			if (fastSums && dist > 0 && sumdist > dist) // if fastSums == true break loop
 				break;
 		}
 		return sumdist;
 	}
 	
 	// calculate sum of x-distances from a tpoint to all qpoints
-	public static final double calcSumDistQx(Point tpoint, ArrayList<Point> queryPoints, boolean fastSums, double dist)
+	public static double calcSumDistQx(Point tpoint, ArrayList<Point> queryPoints, boolean fastSums, double dist)
 	{
 		double sumdistDx = 0;
 		for (Point qpoint : queryPoints)
 		{
 			sumdistDx += Math.abs(qpoint.getX() - tpoint.getX());
 			
-			if (fastSums == true && dist > 0 && sumdistDx > dist) // if fastSums == true break loop
+			if (fastSums && dist > 0 && sumdistDx > dist) // if fastSums == true break loop
 				break;
 		}
 		return sumdistDx;
 	}
 	
-	public static final double pointSquareDistance(double xp, double yp, double x1, double y1, double x2, double y2)
+	public static double pointSquareDistance(double xp, double yp, double x1, double y1, double x2, double y2)
 	{
 		final double dx = Math.max(Math.max(x1 - xp, 0.0), xp - x2);
 		final double dy = Math.max(Math.max(y1 - yp, 0.0), yp - y2);
-		
-		final double minDist = Math.sqrt(dx * dx + dy * dy);
-		
-		return minDist;
+
+		return Math.sqrt(dx * dx + dy * dy);
 	}
 	
-	public static final double squaresDistance(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
+	public static double squaresDistance(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
 	{
 		final boolean left = x4 < x1;
 		final boolean right = x2 < x3;
@@ -252,7 +242,7 @@ public final class GnnFunctions
 		return minDist;
 	}
 	
-	public static final int binarySearchTpoints(double x, ArrayList<Point> points)
+	public static int binarySearchTpoints(double x, ArrayList<Point> points)
 	{
 		int low = 0;
 		int high = points.size() - 1;
@@ -264,22 +254,14 @@ public final class GnnFunctions
 			if (x >= points.get(middle).getX())
 			{
 				if (middle == points.size() - 1) // middle = array length
-				{
 					location = middle;
-				}
 				else if (x < points.get(middle + 1).getX()) // x between middle and high
-				{
 					location = middle;
-				}
 				else // x greater than middle but not smaller than middle+1
-				{
 					low = middle + 1;
-				}
 			}
 			else // x smaller than middle
-			{
 				high = middle - 1;
-			}
 			
 			middle = (low + high + 1) / 2; // recalculate middle
 			
@@ -289,9 +271,9 @@ public final class GnnFunctions
 	}
 	
 	// join two PQs
-	public static final PriorityQueue<IdDist> joinPQ(PriorityQueue<IdDist> pq1, PriorityQueue<IdDist> pq2, int k)
+	public static PriorityQueue<IdDist> joinPQ(PriorityQueue<IdDist> pq1, PriorityQueue<IdDist> pq2, int k)
 	{
-		PriorityQueue<IdDist> pq = new PriorityQueue<IdDist>(k, new IdDistComparator("max"));
+		PriorityQueue<IdDist> pq = new PriorityQueue<>(k, new IdDistComparator("max"));
 		
 		while (!pq1.isEmpty())
 		{
@@ -314,22 +296,18 @@ public final class GnnFunctions
 	}
 	
 	// check for duplicates in PriorityQueue
-	public static final boolean isDuplicate(PriorityQueue<IdDist> pq, IdDist neighbor)
+	public static boolean isDuplicate(PriorityQueue<IdDist> pq, IdDist neighbor)
 	{
-		Iterator<IdDist> it = pq.iterator();
-		while (it.hasNext())
-		{
-			IdDist elem = it.next();
+		for (IdDist elem : pq)
 			if (elem.getId() == neighbor.getId())
 				return true;
-		}
 		return false;
 	}
 	
 	// PriorityQueue<IdDist> to String (smallest to largest distance)
-	public static final String pqToString(PriorityQueue<IdDist> pq, int k, String comp)
+	public static String pqToString(PriorityQueue<IdDist> pq, int k, String comp)
 	{
-		PriorityQueue<IdDist> newPQ = new PriorityQueue<IdDist>(k, new IdDistComparator(comp));
+		PriorityQueue<IdDist> newPQ = new PriorityQueue<>(k, new IdDistComparator(comp));
 		
 		newPQ.addAll(pq);
 		

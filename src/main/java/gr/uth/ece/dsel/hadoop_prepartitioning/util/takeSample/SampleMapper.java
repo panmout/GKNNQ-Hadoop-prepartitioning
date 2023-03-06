@@ -15,7 +15,7 @@ public class SampleMapper extends Mapper<LongWritable, Text, Text, Text>
 	@Override
 	public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException
 	{
-		HashSet<Integer> randomNumbers = new HashSet<Integer>(samplerate); // [percentSample] size set for random integers
+		HashSet<Integer> randomNumbers = new HashSet<>(samplerate); // [percentSample] size set for random integers
 		
 		Random random = new Random();
 		

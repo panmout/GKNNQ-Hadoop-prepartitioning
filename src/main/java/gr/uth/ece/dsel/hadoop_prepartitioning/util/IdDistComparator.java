@@ -16,20 +16,14 @@ public final class IdDistComparator implements Comparator<IdDist>
 	}
 	
 	@Override
-	public final int compare(IdDist element1, IdDist element2)
+	public int compare(IdDist element1, IdDist element2)
 	{
 		if (element1.getDist() < element2.getDist())
-		{
 			return this.x;
-		}
 		else if (element1.getDist() == element2.getDist())
-		{
 			return 0;
-		}
 		else
-		{
 			return -this.x;
-		}
 	}
 }
 

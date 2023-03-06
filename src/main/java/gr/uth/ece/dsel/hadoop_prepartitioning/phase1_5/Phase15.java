@@ -14,49 +14,45 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 
 public class Phase15
 {
-	private static String hostname; // hostname
-	private static String username; // username
-	private static String mr_1_dir; // mapreduce1 dir name
 	private static String mr_1_out_full; // = "hdfs://HadoopStandalone:9000/user/panagiotis/mapreduce1/part-r-00000"
 	private static HashMap<String, Integer> cell_tpoints; // hashmap of training points per cell list from MR1 {[cell_id, number of training points]}
 	private static Formatter outputTextFile; // local output text file
 	private static HashSet<String> overlaps; // set of overlapping cells
-	private static String gnnDir; // HDFS dir containing GNN files
-	private static String mbrCentroidFileName; // mbrCentroid file name in HDFS
 	private static String mbrCentroidFile; // full HDFS path to tree file
 	private static String overlapsFileName; // overlaps file name in HDFS
 	private static double[] mbrC = new double[7]; // mbrCentroid array
-	private static String treeDir; // HDFS dir containing tree file
-	private static String treeFileName; // tree file name in HDFS
-	private static String treeFile; // full HDFS path to tree file
 	private static Node root; // create root node
 	private static int N; // N*N cells
 	private static int K; // GNN K
-	private static String phase15; // mbr or centroid
-	private static String partitioning;
 	private static FileSystem fs;
 	
 	public static void main(String[] args)
 	{
-		hostname = args[0]; // namenode name is 1st argument
-		username = System.getProperty("user.name");
-		
-		mr_1_dir = args[1]; // mapreduce1 dir is 2nd argument
+		// hostname
+		String hostname = args[0]; // namenode name is 1st argument
+		// username
+		String username = System.getProperty("user.name");
+
+		// mapreduce1 dir name
+		String mr_1_dir = args[1]; // mapreduce1 dir is 2nd argument
 		mr_1_out_full = String.format("hdfs://%s:9000/user/%s/%s", hostname, username, mr_1_dir); // full pathname to mapreduce1 dir in hdfs
-		
-		gnnDir = args[2]; // HDFS directory containing GNN files is 3rd argument
-		mbrCentroidFileName = args[3]; // mbrCentroid filename is 4th argument
+
+		// HDFS dir containing GNN files
+		String gnnDir = args[2]; // HDFS directory containing GNN files is 3rd argument
+		// mbrCentroid file name in HDFS
+		String mbrCentroidFileName = args[3]; // mbrCentroid filename is 4th argument
 		mbrCentroidFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, gnnDir, mbrCentroidFileName); // full HDFS path to mbrCentroid file
 		
 		overlapsFileName = String.format("hdfs://%s:9000/user/%s/%s/overlaps.txt", hostname, username, gnnDir);
 		
 		K = Integer.parseInt(args[7]); // K is 8th argument
-		
-		phase15 = args[8]; // phase15 method is 9th argument
-		
-		partitioning = args[9]; // partitioning is 10th argument
-		
-		overlaps = new HashSet<String>();
+
+		// mbr or centroid
+		String phase15 = args[8]; // phase15 method is 9th argument
+
+		String partitioning = args[9]; // partitioning is 10th argument
+
+		overlaps = new HashSet<>();
 		
 		try
 		{
@@ -70,10 +66,13 @@ public class Phase15
 		
 		if (partitioning.equals("qt")) // quadtree cell
 		{
-			treeDir = args[4]; // HDFS directory containing tree file is 5th argument
-			treeFileName = args[5]; // tree filename is 6th argument
-			treeFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, treeDir, treeFileName); // full HDFS path to tree file
-			
+			// HDFS dir containing tree file
+			String treeDir = args[4]; // HDFS directory containing tree file is 5th argument
+			// tree file name in HDFS
+			String treeFileName = args[5]; // tree filename is 6th argument
+			// full HDFS path to tree file
+			String treeFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, treeDir, treeFileName); // full HDFS path to tree file
+
 			root = ReadHdfsFiles.getTree(treeFile, fs);
 		}
 		else if (partitioning.equals("gd")) // grid cell
@@ -104,7 +103,7 @@ public class Phase15
 	{
 		try // open files
 		{			
-			cell_tpoints = new HashMap<String, Integer>(ReadHdfsFiles.getMR1output(mr_1_out_full, fs)); // read MR1 output as HashMap
+			cell_tpoints = new HashMap<>(ReadHdfsFiles.getMR1output(mr_1_out_full, fs)); // read MR1 output as HashMap
 			
 			mbrC = ReadHdfsFiles.getMbrCentroid(mbrCentroidFile, fs); // read mbrCentroid array
 			
@@ -123,9 +122,7 @@ public class Phase15
 		StringBuilder output = new StringBuilder();
 		
 		for (String cell : overlaps)
-		{
 			output.append(String.format("%s\n", cell));
-		}
 		// write to files and close them
 		try
 		{
@@ -156,7 +153,7 @@ public class Phase15
 	 */
 	
 	// find grid MBR overlaps
-	private static final void mbrOverlapsGD()
+	private static void mbrOverlapsGD()
 	{
 		final double ds = 1.0/N; // interval ds (cell width)
 		
@@ -206,7 +203,7 @@ public class Phase15
 	}
 	
 	// find quadtree MBR overlaps
-	private static final void mbrOverlapsQT()
+	private static void mbrOverlapsQT()
 	{
 		double xmin = mbrC[0]; // get MBR borders from array
 		double xmax = mbrC[1];
@@ -267,7 +264,7 @@ public class Phase15
 	}
 	
 	// find grid centroid overlaps
-	private static final void centroidOverlapsGD()
+	private static void centroidOverlapsGD()
 	{
 		/*
 		Cell array (numbers inside cells are cell_id)
@@ -356,10 +353,10 @@ public class Phase15
 		}
 		
 		// top-bottom rows, far left-right columns
-		final HashSet<Integer> south_row = new HashSet<Integer>(); // no S, SE, SW for cells in this set
-		final HashSet<Integer> north_row = new HashSet<Integer>(); // no N, NE, NW for cells in this set
-		final HashSet<Integer> west_column = new HashSet<Integer>(); // no W, NW, SW for cells in this set
-		final HashSet<Integer> east_column = new HashSet<Integer>(); // no E, NE, SE for cells in this set
+		final HashSet<Integer> south_row = new HashSet<>(); // no S, SE, SW for cells in this set
+		final HashSet<Integer> north_row = new HashSet<>(); // no N, NE, NW for cells in this set
+		final HashSet<Integer> west_column = new HashSet<>(); // no W, NW, SW for cells in this set
+		final HashSet<Integer> east_column = new HashSet<>(); // no E, NE, SE for cells in this set
 		
 		for (int i = 0; i < N; i++) // filling sets
 		{
@@ -370,10 +367,10 @@ public class Phase15
 		}
 		
 		// set of surrounding cells
-		final HashSet<Integer> surrounding_cells = new HashSet<Integer>();
+		final HashSet<Integer> surrounding_cells = new HashSet<>();
 		
 		// dummy set of cells to be added (throws ConcurrentModificationException if trying to modify set while traversing it)
-		final HashSet<Integer> addSquaresList = new HashSet<Integer>();
+		final HashSet<Integer> addSquaresList = new HashSet<>();
 		
 		// first element is centroid cell
 		surrounding_cells.add(intCentroidCell);
@@ -454,7 +451,7 @@ public class Phase15
 					stopRunY = true;
 				
 				// if all stop vars are set to 'true', stop loop
-				if (stopRunX == true && stopRunY == true)
+				if (stopRunX && stopRunY)
 					runAgain = false;
 			}
 			
@@ -540,7 +537,7 @@ public class Phase15
 	}
 	
 	// find quadtree centroid overlaps
-	private static final void centroidOverlapsQT()
+	private static void centroidOverlapsQT()
 	{
 		// centroid coords
     	final double xc = mbrC[4];
@@ -596,7 +593,7 @@ public class Phase15
 		}
 	}
 	
-	private static final void rangeQuery(double x, double y, double r, Node node, String address)
+	private static void rangeQuery(double x, double y, double r, Node node, String address)
 	{
 		if (node.getNW() == null) // leaf node
 			overlaps.add(address);
@@ -618,7 +615,7 @@ public class Phase15
 		}
 	}
 	
-	private static final boolean intersect(double x, double y, double r, Node node)
+	private static boolean intersect(double x, double y, double r, Node node)
 	{
 		// if point is inside cell return true
 		if (x >= node.getXmin() && x <= node.getXmax() && y >= node.getYmin() && y <= node.getYmax())

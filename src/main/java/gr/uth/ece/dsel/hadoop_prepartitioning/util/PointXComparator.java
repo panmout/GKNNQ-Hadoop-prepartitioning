@@ -16,20 +16,14 @@ public final class PointXComparator  implements Comparator<Point>
 	}
 	
 	@Override
-	public final int compare(Point element1, Point element2)
+	public int compare(Point element1, Point element2)
 	{
 		if (element1.getX() < element2.getX())
-		{
 			return this.a;
-		}
 		else if (element1.getX() == element2.getX())
-		{
 			return 0;
-		}
 		else
-		{
 			return -this.a;
-		}
 	}
 
 }

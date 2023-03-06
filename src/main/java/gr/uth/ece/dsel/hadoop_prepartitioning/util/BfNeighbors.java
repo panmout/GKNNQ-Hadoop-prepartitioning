@@ -8,26 +8,26 @@ import org.apache.hadoop.mapreduce.Reducer.Context;
 public final class BfNeighbors
 {
 	private int k;
-	private ArrayList<Point> qpoints;
+	private final ArrayList<Point> qpoints;
 	private ArrayList<Point> tpoints;
-	private double[] mbrCentroid;
-	private PriorityQueue<IdDist> neighbors;
-	private boolean fastsums;
-	private Context context;
+	private final double[] mbrCentroid;
+	private final PriorityQueue<IdDist> neighbors;
+	private final boolean fastsums;
+	private final Context context;
 	
 	public BfNeighbors(int K, double[] mbrC, ArrayList<Point> qp, PriorityQueue<IdDist> pq, boolean fs, Context con)
 	{
 		this.k = K;
-		this.qpoints = new ArrayList<Point>(qp);
+		this.qpoints = new ArrayList<>(qp);
 		this.mbrCentroid = Arrays.copyOf(mbrC, mbrC.length);
-		this.neighbors = new PriorityQueue<IdDist>(pq);
+		this.neighbors = new PriorityQueue<>(pq);
 		this.fastsums = fs;
 		this.context = con;
 	}
 	
-	public final void setTpoints(ArrayList<Point> tp)
+	public void setTpoints(ArrayList<Point> tp)
 	{
-		this.tpoints = new ArrayList<Point>(tp);
+		this.tpoints = new ArrayList<>(tp);
 	}
 	
 	public final PriorityQueue<IdDist> getNeighbors()
@@ -75,9 +75,9 @@ public final class BfNeighbors
 	  			} // end if
 	    	} // end else
 		} // end for
-	    if (changed == true)
+	    if (changed)
 	    	return neighbors;
 	    else
-	    	return new PriorityQueue<IdDist>(this.k, new IdDistComparator("max"));
+	    	return new PriorityQueue<>(this.k, new IdDistComparator("max"));
 	} // end gdBfNeighbors
 }

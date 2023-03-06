@@ -20,9 +20,9 @@ public final class ReadHdfsFiles
 	private static String line;
 	
 	// read query dataset from hdfs
-	public static final ArrayList<Point> getQueryPoints(String queryDatasetFile, FileSystem fs)
+	public static ArrayList<Point> getQueryPoints(String queryDatasetFile, FileSystem fs)
 	{
-		ArrayList<Point> qpoints = new ArrayList<Point>();
+		ArrayList<Point> qpoints = new ArrayList<>();
 		
 		try
 		{
@@ -44,9 +44,9 @@ public final class ReadHdfsFiles
 	}
 	
 	// read sorted query dataset from hdfs
-	public static final ArrayList<Point> getSortedQueryPoints(String sortedQueryFile, FileSystem fs)
+	public static ArrayList<Point> getSortedQueryPoints(String sortedQueryFile, FileSystem fs)
 	{
-		ArrayList<Point> qpoints = new ArrayList<Point>();
+		ArrayList<Point> qpoints = new ArrayList<>();
 		
 		try
 		{
@@ -67,7 +67,7 @@ public final class ReadHdfsFiles
 	}
 	
 	// read mbrCentroid array from hdfs
-	public static final double[] getMbrCentroid(String mbrCentroidFile, FileSystem fs)
+	public static double[] getMbrCentroid(String mbrCentroidFile, FileSystem fs)
 	{
 		double[] mbrC = new double[7];
 		
@@ -78,9 +78,7 @@ public final class ReadHdfsFiles
 			line = reader.readLine();
 			String[] data = line.trim().split("\t"); // split it at '\t'
 			for (int i = 0; i < data.length; i++)
-			{
 				mbrC[i] = Double.parseDouble(data[i]); // read (xmin, xmax, ymin, ymax, xc, yc, sumdist_c_Q) and put into array
-			}
 			reader.close(); // close file
 		}
 		catch (IOException e)
@@ -92,9 +90,9 @@ public final class ReadHdfsFiles
 	}
 	
 	// read overlaps hashset from hdfs
-	public static final HashSet<String> getOverlaps(String overlapsFile, FileSystem fs)
+	public static HashSet<String> getOverlaps(String overlapsFile, FileSystem fs)
 	{
-		HashSet<String> overlaps = new HashSet<String>();
+		HashSet<String> overlaps = new HashSet<>();
 		
 		try
 		{
@@ -103,9 +101,7 @@ public final class ReadHdfsFiles
 			reader = new BufferedReader(new InputStreamReader(fs.open(pt))); // create reader object from java data stream object
 			
 			while ((line = reader.readLine())!= null) // while input has more lines
-			{
 				overlaps.add(line.trim()); // add cell to hashset
-			}
 			reader.close(); // close file
 		}
 		catch (IOException e)
@@ -117,7 +113,7 @@ public final class ReadHdfsFiles
 	}
 	
 	// read treefile from hdfs
-	public static final Node getTree(String treeFile, FileSystem fs)
+	public static Node getTree(String treeFile, FileSystem fs)
 	{
 		Node root = null;
 		try
@@ -138,9 +134,9 @@ public final class ReadHdfsFiles
 	}
 	
 	// read mapreduce1 output from hdfs as hashmap
-	public static final HashMap<String, Integer> getMR1output(String mr1OutFull, FileSystem fs)
+	public static HashMap<String, Integer> getMR1output(String mr1OutFull, FileSystem fs)
 	{
-		HashMap<String, Integer> cell_tpoints = new HashMap<String, Integer>();
+		HashMap<String, Integer> cell_tpoints = new HashMap<>();
 		
 		try // open files
 		{
@@ -153,7 +149,7 @@ public final class ReadHdfsFiles
 				
 				while ((line = reader.readLine())!= null) // while input has more lines
 				{
-					String data[] = line.trim().split("\t");
+					String[] data = line.trim().split("\t");
 					String cell = data[0]; // 1st element is point cell
 					Integer num = Integer.parseInt(data[1]); // 2nd element is number of training points in cell
 					cell_tpoints.put(cell, num); // add to hashmap
@@ -170,9 +166,9 @@ public final class ReadHdfsFiles
 	}
 	
 	// read mapreduce 2 or 3 output from hdfs as max priority queue
-	public static final PriorityQueue<IdDist> getPhase23Neighbors(String mr23OutFull, FileSystem fs, int k)
+	public static PriorityQueue<IdDist> getPhase23Neighbors(String mr23OutFull, FileSystem fs, int k)
 	{
-		PriorityQueue<IdDist> neighbors = new PriorityQueue<IdDist>(k, new IdDistComparator("max"));
+		PriorityQueue<IdDist> neighbors = new PriorityQueue<>(k, new IdDistComparator("max"));
 		
 		try
 		{
@@ -186,16 +182,14 @@ public final class ReadHdfsFiles
 				
 				while ((line = reader.readLine())!= null) // while input has more lines
 				{
-					String data[] = line.trim().split("\t");
+					String[] data = line.trim().split("\t");
 					for (int j = 0; j < data.length; j += 2) // mr2 output is {pid1, dist1, pid2, dist2,...,pidK, distK}
 					{
 						int pid = Integer.parseInt(data[j]); // 1st pair element is point id
 						double dist = Double.parseDouble(data[j + 1]); // 2nd pair element is distance
 						IdDist neighbor = new IdDist(pid, dist);
 						if (neighbors.size() < k) // if queue is not full, add new tpoints 
-						{
 							neighbors.offer(neighbor);
-						}
 						else
 						{
 							// eliminate duplicates
@@ -223,9 +217,9 @@ public final class ReadHdfsFiles
 	}
 	
 	// read Phase 2.5 neighbors from hdfs as max priority queue
-	public static final PriorityQueue<IdDist> getPhase25Neighbors(String gnn25File, FileSystem fs, int k)
+	public static PriorityQueue<IdDist> getPhase25Neighbors(String gnn25File, FileSystem fs, int k)
 	{
-		PriorityQueue<IdDist> neighbors = new PriorityQueue<IdDist>(k, new IdDistComparator("max"));
+		PriorityQueue<IdDist> neighbors = new PriorityQueue<>(k, new IdDistComparator("max"));
 		
 		try
 		{
