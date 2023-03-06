@@ -13,45 +13,25 @@ import gr.uth.ece.dsel.hadoop_prepartitioning.util.*;
 public class Mapper3 extends Mapper<LongWritable, Text, Text, Text>
 {
 	private String partitioning; // bf or qt
-	private String hostname; // hostname
-	private String username; // username
-	private String mbrCentroidDir; // HDFS dir containing mbrCentroid file
-	private String mbrCentroidFileName; // mbrCentroid file name in HDFS
-	private String mbrCentroidFile; // full HDFS path to tree file
-	private String overlapsDir; // HDFS dir containing overlaps file
-	private String overlapsFileName; // overlaps file name in HDFS
-	private String overlapsFile; // full HDFS path to overlaps file
-	private String gnn25Dir; // HDFS dir containing gnn25 file
-	private String gnn25FileName; // gnn25 file name in HDFS
-	private String gnn25File; // full HDFS path to gnn25 file
-	private String queryDatasetDir; // HDFS dir containing query file
-	private String queryDatasetFileName; // query file name in HDFS
-	private String queryDatasetFile; // full HDFS path to query file
 	private HashSet<String> overlaps; // intersected nodes from Phase 1.5 hdfs import
 	private double[] mbrC; // array that contains MBR[0-3]-centroid[4-5] coords and sumdist(centroid, Q)[6]
 	private double bestDist; // best GNN distance from Phase 2.5 output file
 	private ArrayList<Point> qpoints; // arraylist for query dataset point objects
 	private int N; // N*N cells
-	private int K;
 	private boolean heuristics; // heuristics on (true) or off (false)
-	private boolean fastSums; // break sumDist loops on (true) or off (false) 
-	private String mode; // bf or ps
-	private String line;
-	private String[] data;
-	private String cell;
-	private boolean bool;
-	
+	private boolean fastSums; // break sumDist loops on (true) or off (false)
+
 	@Override
 	public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException
 	{
-		line = value.toString(); // read a line from MR1 output
-		
-		data = GnnFunctions.stringToArray(line, "\t");
-		
-		cell = data[0]; // we are only interested in cell_id
-		
-		bool = true; // pruning flag (true --> pass, false --> prune)
-		
+		String line = value.toString(); // read a line from MR1 output
+
+		String[] data = GnnFunctions.stringToArray(line, "\t");
+
+		String cell = data[0]; // we are only interested in cell_id
+
+		boolean bool; // pruning flag (true --> pass, false --> prune)
+
 		if (!overlaps.contains(cell) && value.toString() != null) // continue only for cells not in overlaps and contains points
 		{
 			double x0 = 0; // cell's lower left corner coords, cell width
@@ -108,7 +88,7 @@ public class Mapper3 extends Mapper<LongWritable, Text, Text, Text>
 			
 			
 			// if boolean var is true, cell is not pruned and goes to output
-			if (bool == true)
+			if (bool)
 			{
 				// increment cell counter
 				context.getCounter(Metrics.CELLS_PROC).increment(1);
@@ -129,48 +109,63 @@ public class Mapper3 extends Mapper<LongWritable, Text, Text, Text>
 		partitioning = conf.get("partitioning");
 		
 		N = Integer.parseInt(conf.get("N")); // get N
-		
-		hostname = conf.get("namenode"); // get namenode name
-		username = System.getProperty("user.name"); // get user name
-		
-		overlapsDir = conf.get("overlapsDir"); // HDFS directory containing overlaps file
-		overlapsFileName = conf.get("overlapsFileName"); // get overlaps filename
-		overlapsFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, overlapsDir, overlapsFileName); // full HDFS path to overlaps file
+
+		// hostname
+		String hostname = conf.get("namenode"); // get namenode name
+		// username
+		String username = System.getProperty("user.name"); // get user name
+
+		// HDFS dir containing overlaps file
+		String overlapsDir = conf.get("overlapsDir"); // HDFS directory containing overlaps file
+		// overlaps file name in HDFS
+		String overlapsFileName = conf.get("overlapsFileName"); // get overlaps filename
+		// full HDFS path to overlaps file
+		String overlapsFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, overlapsDir, overlapsFileName); // full HDFS path to overlaps file
 		overlaps = new HashSet<String>();
-		
-		mbrCentroidDir = conf.get("mbrCentroidDir"); // HDFS directory containing mbrCentroid file
-		mbrCentroidFileName = conf.get("mbrCentroidFileName"); // get mbrCentroid filename
-		mbrCentroidFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, mbrCentroidDir, mbrCentroidFileName); // full HDFS path to mbrCentroid file
+
+		// HDFS dir containing mbrCentroid file
+		String mbrCentroidDir = conf.get("mbrCentroidDir"); // HDFS directory containing mbrCentroid file
+		// mbrCentroid file name in HDFS
+		String mbrCentroidFileName = conf.get("mbrCentroidFileName"); // get mbrCentroid filename
+		// full HDFS path to tree file
+		String mbrCentroidFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, mbrCentroidDir, mbrCentroidFileName); // full HDFS path to mbrCentroid file
 		mbrC = new double[7];
-		
-		gnn25Dir = conf.get("gnn25Dir"); // HDFS directory containing gnn25 file
-		gnn25FileName = conf.get("gnn25FileName"); // get gnn25 filename
-		gnn25File = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, gnn25Dir, gnn25FileName); // full HDFS path to gnn25 file
-		
-		queryDatasetDir = conf.get("queryDir"); // get query dataset dir
-		queryDatasetFileName = conf.get("queryFileName"); // get query dataset filename
-		queryDatasetFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, queryDatasetDir, queryDatasetFileName); // full HDFS path to query dataset file
-		qpoints = new ArrayList<Point>();
-		
-		K = Integer.parseInt(conf.get("K")); // get K
-		
+
+		// HDFS dir containing gnn25 file
+		String gnn25Dir = conf.get("gnn25Dir"); // HDFS directory containing gnn25 file
+		// gnn25 file name in HDFS
+		String gnn25FileName = conf.get("gnn25FileName"); // get gnn25 filename
+		// full HDFS path to gnn25 file
+		String gnn25File = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, gnn25Dir, gnn25FileName); // full HDFS path to gnn25 file
+
+		// HDFS dir containing query file
+		String queryDatasetDir = conf.get("queryDir"); // get query dataset dir
+		// query file name in HDFS
+		String queryDatasetFileName = conf.get("queryFileName"); // get query dataset filename
+		// full HDFS path to query file
+		String queryDatasetFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, queryDatasetDir, queryDatasetFileName); // full HDFS path to query dataset file
+		qpoints = new ArrayList<>();
+
+		int k = Integer.parseInt(conf.get("K")); // get K
+
 		heuristics = conf.getBoolean("heuristics", true); // default heuristics on
 		
 		fastSums = conf.getBoolean("fastSums", false); // default : false (normal mode)
-		
-		mode = conf.get("mode");
+
+		// bf or ps
+		String mode = conf.get("mode");
 		
 		FileSystem fs = FileSystem.get(conf); // get filesystem type from configuration
 		
-		overlaps = new HashSet<String>(ReadHdfsFiles.getOverlaps(overlapsFile, fs)); // read overlaps
+		overlaps = new HashSet<>(ReadHdfsFiles.getOverlaps(overlapsFile, fs)); // read overlaps
 		
 		mbrC = ReadHdfsFiles.getMbrCentroid(mbrCentroidFile, fs); // read mbrCentroid array
 		
 		if (mode.equals("bf"))
-			qpoints = new ArrayList<Point>(ReadHdfsFiles.getQueryPoints(queryDatasetFile, fs)); // read querypoints
+			qpoints = new ArrayList<>(ReadHdfsFiles.getQueryPoints(queryDatasetFile, fs)); // read querypoints
 		else if (mode.equals("ps"))
-			qpoints = new ArrayList<Point>(ReadHdfsFiles.getSortedQueryPoints(queryDatasetFile, fs)); // read querypoints
+			qpoints = new ArrayList<>(ReadHdfsFiles.getSortedQueryPoints(queryDatasetFile, fs)); // read querypoints
 		
-		bestDist = ReadHdfsFiles.getPhase25Neighbors(gnn25File, fs, K).peek().getDist(); // k-th neighbor distance
+		bestDist = ReadHdfsFiles.getPhase25Neighbors(gnn25File, fs, k).peek().getDist(); // k-th neighbor distance
 	}
 }

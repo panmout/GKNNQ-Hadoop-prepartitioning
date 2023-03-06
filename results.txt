@@ -1,9 +1,0 @@
-GNN QT-BF using {centroid method, heuristics:true, fast sums:true} starts
-Phase 0 time: 42190 millis
-Phase 1 time: 46705 millis
-Phase 1.5 time: 696 millis
-Phase 2 time: 49378 millis
-Phase 2.5 time: 145 millis
-Phase 3 time: 46131 millis
-Phase 3.5 time: 105 millis
-QT-BF using {centroid method, heuristics:true, fast sums:true} time: 185350 millis

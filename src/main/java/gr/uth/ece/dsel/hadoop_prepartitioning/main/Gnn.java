@@ -25,7 +25,6 @@ public class Gnn
 	private static String queryDataset;
 	private static String sortedQueryFile;
 	private static String trainingDataset;
-	private static String trainingFile;
 	private static String mbrCentroidFile;
 	private static String overlapsFile;
 	private static String gnnDir;
@@ -106,10 +105,10 @@ public class Gnn
 			else
 				throw new IllegalArgumentException("not a valid argument, must be \"name=arg\", : " + arg);
 		}
+
+		String trainingFile = String.format("%s/%s", trainingDir, trainingDataset);
 		
-		trainingFile = String.format("%s/%s", trainingDir, trainingDataset);
-		
-		String queryFile = null; // text file query (bf) or sorted query file (ps)
+		String queryFile; // text file query (bf) or sorted query file (ps)
 		
 		if (mode.equals("bf"))
 			queryFile = queryDataset;
@@ -125,7 +124,7 @@ public class Gnn
 			throw new IllegalArgumentException("phase15 args must be 'mbr' or 'centroid'");
 		
 		// execution starts
-		Long tstart = System.currentTimeMillis();
+		long tstart = System.currentTimeMillis();
 		
 		String startMessage = String.format("GNN %s-%s using {%s method, heuristics:%s, fast sums:%s} starts\n", partitioning.toUpperCase(), mode.toUpperCase(), phase15, heuristics, fastSums);
 		System.out.println(startMessage);
@@ -136,7 +135,7 @@ public class Gnn
 		String[] driver_partition_args = new String[] {trainingFile, mr_partition, nameNode, treeDir, treeFile, N, partitioning, reducers};
 		new gr.uth.ece.dsel.hadoop_prepartitioning.partition.Driver_partition().run(driver_partition_args);
 		
-		Long t0 = System.currentTimeMillis();
+		long t0 = System.currentTimeMillis();
 		String phase0Message = String.format("Phase 0 time: %d millis\n", t0 - tstart);
 		System.out.println(phase0Message);
 		writeToFile(outputTextFile, phase0Message);
@@ -146,7 +145,7 @@ public class Gnn
 		String[] driver1args = new String[] {mr_partition, mr1outputPath, reducers};
 		new gr.uth.ece.dsel.hadoop_prepartitioning.phase1.Driver1().run(driver1args);
 		
-		Long t1 = System.currentTimeMillis();
+		long t1 = System.currentTimeMillis();
 		String phase1Message = String.format("Phase 1 time: %d millis\n", t1 - t0);
 		System.out.println(phase1Message);
 		writeToFile(outputTextFile, phase1Message);
@@ -156,7 +155,7 @@ public class Gnn
 		String[] phase15args = new String[] {nameNode, mr1outputPath, gnnDir, mbrCentroidFile, treeDir, treeFile, N, K, phase15, partitioning};
 		gr.uth.ece.dsel.hadoop_prepartitioning.phase1_5.Phase15.main(phase15args);
 		
-		Long t15 = System.currentTimeMillis();
+		long t15 = System.currentTimeMillis();
 		String phase15Message = String.format("Phase 1.5 time: %d millis\n", t15 - t1);
 		System.out.println(phase15Message);
 		writeToFile(outputTextFile, phase15Message);
@@ -166,7 +165,7 @@ public class Gnn
 		String[] driver2args = new String[] {mr_partition, mr2outputPath, nameNode, gnnDir, overlapsFile, queryDir, queryFile, gnnDir, mbrCentroidFile, fastSums, K, mode, reducers};
 		new gr.uth.ece.dsel.hadoop_prepartitioning.phase2.Driver2().run(driver2args);
 		
-		Long t2 = System.currentTimeMillis();
+		long t2 = System.currentTimeMillis();
 		String phase2Message = String.format("Phase 2 time: %d millis\n", t2 - t15);
 		System.out.println(phase2Message);
 		writeToFile(outputTextFile, phase2Message);
@@ -176,7 +175,7 @@ public class Gnn
 		String[] phase25GDargs = new String[] {nameNode, mr2outputPath, gnnDir, K};
 		gr.uth.ece.dsel.hadoop_prepartitioning.phase2_5.Phase2_5.main(phase25GDargs);
 		
-		Long t25 = System.currentTimeMillis();
+		long t25 = System.currentTimeMillis();
 		String phase25Message = String.format("Phase 2.5 time: %d millis\n", t25 - t2);
 		System.out.println(phase25Message);
 		writeToFile(outputTextFile, phase25Message);
@@ -186,7 +185,7 @@ public class Gnn
 		String[] driver3args = new String[] {mr_partition, mr3outputPath, nameNode, gnnDir, overlapsFile, queryDir, queryFile, gnnDir, mbrCentroidFile, gnnDir, gnn25File, heuristics, fastSums, N, K, partitioning, mode, reducers};
 		new gr.uth.ece.dsel.hadoop_prepartitioning.phase3.Driver3().run(driver3args);
 		
-		Long t3 = System.currentTimeMillis();
+		long t3 = System.currentTimeMillis();
 		String phase3Message = String.format("Phase 3 time: %d millis\n", t3 - t25);
 		System.out.println(phase3Message);
 		writeToFile(outputTextFile, phase3Message);
@@ -196,7 +195,7 @@ public class Gnn
 		String[] phase35GDargs = new String[] {nameNode, mr3outputPath, gnnDir, gnn25File, K};
 		gr.uth.ece.dsel.hadoop_prepartitioning.phase3_5.Phase3_5.main(phase35GDargs);
 		
-		Long t35 = System.currentTimeMillis();
+		long t35 = System.currentTimeMillis();
 		String phase35Message = String.format("Phase 3.5 time: %d millis\n", t35 - t3);
 		System.out.println(phase35Message);
 		writeToFile(outputTextFile, phase35Message);

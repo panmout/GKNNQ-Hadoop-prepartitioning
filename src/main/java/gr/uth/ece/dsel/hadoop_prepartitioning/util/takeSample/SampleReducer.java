@@ -1,12 +1,13 @@
 package gr.uth.ece.dsel.hadoop_prepartitioning.util.takeSample;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import gr.uth.ece.dsel.hadoop_prepartitioning.util.GnnFunctions;
+import gr.uth.ece.dsel.hadoop_prepartitioning.util.Point;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
-import gr.uth.ece.dsel.hadoop_prepartitioning.util.*;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 public class SampleReducer extends Reducer<Text, Text, Text, Text>
 {
@@ -16,32 +17,14 @@ public class SampleReducer extends Reducer<Text, Text, Text, Text>
 	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException
 	{
 		// ascending comparator by id for Point objects (id, x, y)
-		Comparator<Point> idComparator = new Comparator<Point>()
-		{
-			@Override
-			public int compare(Point element1, Point element2)
-			{
-				if (element1.getId() < element2.getId())
-				{
-					return -1;
-				}
-				else if (element1.getId() == element2.getId())
-				{
-					return 0;
-				}
-				else
-				{
-					return 1;
-				}
-			}
-		};
+		Comparator<Point> idComparator = Comparator.comparingInt(Point::getId);
 		
-		tpoints = new ArrayList<Point>(); 
+		tpoints = new ArrayList<>();
 		
 		for (Text value: values)
 			tpoints.add(GnnFunctions.stringToPoint(value.toString(), "\t"));
 		
-		Collections.sort(tpoints, idComparator);
+		tpoints.sort(idComparator);
 	}
 	
 	@Override

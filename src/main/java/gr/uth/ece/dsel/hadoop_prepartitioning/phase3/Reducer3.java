@@ -12,45 +12,28 @@ import gr.uth.ece.dsel.hadoop_prepartitioning.util.*;
 public class Reducer3 extends Reducer<Text, Text, Text, Text>
 {
 	private int K; // user defined (k-nn)
-	private String hostname; // hostname
-	private String username; // username
-	private String queryDatasetDir; // HDFS dir containing query file
-	private String queryDatasetFileName; // query file name in HDFS
-	private String queryDatasetFile; // full HDFS path to query file
-	private String mbrCentroidDir; // HDFS dir containing mbrCentroid file
-	private String mbrCentroidFileName; // mbrCentroid file name in HDFS
-	private String mbrCentroidFile; // full HDFS path to tree file
-	private String gnn25Dir; // HDFS dir containing gnn25 file
-	private String gnn25FileName; // gnn25 file name in HDFS
-	private String gnn25File; // full HDFS path to gnn25 file
-	private ArrayList<Point> qpoints; // list containing query points
-	private ArrayList<Point> tpoints; // list containing training points
-	private double[] mbrC; // array of doubles to put MBR, centroid, sumdist(centroid, Q)
-	private PriorityQueue<IdDist> neighbors2; // Phase 2.5 neighbors
 	private PriorityQueue<IdDist> neighbors3; // new neighbors list
-	private boolean fastSums; // break sumDist loops on (true) or off (false)
 	private String mode; // bf or ps
 	private BfNeighbors bfn;
 	private PsNeighbors psn;
-	private String line;
-	private String[] data;
-	
+
 	@Override
 	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException
 	{
 		//int cell = key.get(); // key is cell_id (mappers' output)
-		
-		tpoints = new ArrayList<Point>(); // list of tpoints in this cell
-		
+
+		// list containing training points
+		ArrayList<Point> tpoints = new ArrayList<Point>(); // list of tpoints in this cell
+
 		for (Text value: values) // run through value of mapper output
 		{
-			line = value.toString(); // read a line
+			String line = value.toString(); // read a line
+
+			String[] data = GnnFunctions.stringToArray(line, "\t");
 			
-			data = GnnFunctions.stringToArray(line, "\t");
-			
-			int pid = 0;
-			double x = 0;
-			double y = 0;
+			int pid;
+			double x;
+			double y;
 			
 			for (int i = 0; i < data.length; i += 3)
 			{
@@ -86,7 +69,7 @@ public class Reducer3 extends Reducer<Text, Text, Text, Text>
 		// outKey = null
 		// outValue is {tpoint1_id, dist1, tpoint2_id, dist2,...,tpointK_id, distK}
 		
-		PriorityQueue<IdDist> neighbors = new PriorityQueue<IdDist>(K, new IdDistComparator("min")); // min heap
+		PriorityQueue<IdDist> neighbors = new PriorityQueue<>(K, new IdDistComparator("min")); // min heap
 		
 		while (!neighbors3.isEmpty())
 		{
@@ -107,43 +90,59 @@ public class Reducer3 extends Reducer<Text, Text, Text, Text>
 		Configuration conf = context.getConfiguration();
 		
 		K = Integer.parseInt(conf.get("K"));
-		
-		hostname = conf.get("namenode"); // get namenode name
-		username = System.getProperty("user.name"); // get user name
-		
-		queryDatasetDir = conf.get("queryDir"); // get query dataset dir
-		queryDatasetFileName = conf.get("queryFileName"); // get query dataset filename
-		queryDatasetFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, queryDatasetDir, queryDatasetFileName); // full HDFS path to query dataset file
-		
-		mbrCentroidDir = conf.get("mbrCentroidDir"); // get mbrCentroid dir
-		mbrCentroidFileName = conf.get("mbrCentroidFileName"); // get mbrCentroid filename
-		mbrCentroidFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, mbrCentroidDir, mbrCentroidFileName); // full HDFS path to mbrCentroid file
-		
-		gnn25Dir = conf.get("gnn25Dir"); // HDFS directory containing gnn25 file
-		gnn25FileName = conf.get("gnn25FileName"); // get gnn25 filename
-		gnn25File = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, gnn25Dir, gnn25FileName); // full HDFS path to gnn25 file
-		
-		fastSums = conf.getBoolean("fastSums", false); // default : false (normal mode)
-		
+
+		// hostname
+		String hostname = conf.get("namenode"); // get namenode name
+		// username
+		String username = System.getProperty("user.name"); // get user name
+
+		// HDFS dir containing query file
+		String queryDatasetDir = conf.get("queryDir"); // get query dataset dir
+		// query file name in HDFS
+		String queryDatasetFileName = conf.get("queryFileName"); // get query dataset filename
+		// full HDFS path to query file
+		String queryDatasetFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, queryDatasetDir, queryDatasetFileName); // full HDFS path to query dataset file
+
+		// HDFS dir containing mbrCentroid file
+		String mbrCentroidDir = conf.get("mbrCentroidDir"); // get mbrCentroid dir
+		// mbrCentroid file name in HDFS
+		String mbrCentroidFileName = conf.get("mbrCentroidFileName"); // get mbrCentroid filename
+		// full HDFS path to tree file
+		String mbrCentroidFile = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, mbrCentroidDir, mbrCentroidFileName); // full HDFS path to mbrCentroid file
+
+		// HDFS dir containing gnn25 file
+		String gnn25Dir = conf.get("gnn25Dir"); // HDFS directory containing gnn25 file
+		// gnn25 file name in HDFS
+		String gnn25FileName = conf.get("gnn25FileName"); // get gnn25 filename
+		// full HDFS path to gnn25 file
+		String gnn25File = String.format("hdfs://%s:9000/user/%s/%s/%s", hostname, username, gnn25Dir, gnn25FileName); // full HDFS path to gnn25 file
+
+		// break sumDist loops on (true) or off (false)
+		boolean fastSums = conf.getBoolean("fastSums", false); // default : false (normal mode)
+
 		FileSystem fs = FileSystem.get(conf); // get filesystem type from configuration
-		
-		mbrC = ReadHdfsFiles.getMbrCentroid(mbrCentroidFile, fs); // read mbrCentroid array
-		
-		neighbors2 = new PriorityQueue<IdDist>(K, new IdDistComparator("max"));
+
+		// array of doubles to put MBR, centroid, sumdist(centroid, Q)
+		double[] mbrC = ReadHdfsFiles.getMbrCentroid(mbrCentroidFile, fs); // read mbrCentroid array
+
+		// Phase 2.5 neighbors
+		PriorityQueue<IdDist> neighbors2 = new PriorityQueue<>(K, new IdDistComparator("max"));
 		neighbors2.addAll(ReadHdfsFiles.getPhase25Neighbors(gnn25File, fs, K)); // add Phase 2.5 neighbors
 		
-		neighbors3 = new PriorityQueue<IdDist>(K, new IdDistComparator("max"));
+		neighbors3 = new PriorityQueue<>(K, new IdDistComparator("max"));
 		
 		mode = conf.get("mode");
-		
+
+		// list containing query points
+		ArrayList<Point> qpoints;
 		if (mode.equals("bf"))
 		{
-			qpoints = new ArrayList<Point>(ReadHdfsFiles.getQueryPoints(queryDatasetFile, fs)); // read querypoints
+			qpoints = new ArrayList<>(ReadHdfsFiles.getQueryPoints(queryDatasetFile, fs)); // read querypoints
 			bfn = new BfNeighbors(K, mbrC, qpoints, neighbors2, fastSums, context);
 		}
 		else if (mode.equals("ps"))
 		{
-			qpoints = new ArrayList<Point>(ReadHdfsFiles.getSortedQueryPoints(queryDatasetFile, fs)); // read querypoints
+			qpoints = new ArrayList<>(ReadHdfsFiles.getSortedQueryPoints(queryDatasetFile, fs)); // read querypoints
 			psn = new PsNeighbors(K, mbrC, qpoints, neighbors2, fastSums, context);
 		}
 	}

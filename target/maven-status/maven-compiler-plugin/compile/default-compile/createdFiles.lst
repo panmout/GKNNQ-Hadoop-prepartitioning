@@ -8,7 +8,6 @@ gr/uth/ece/dsel/hadoop_prepartitioning/main/Gnn.class
 gr/uth/ece/dsel/hadoop_prepartitioning/util/takeSample/SampleDriver.class
 gr/uth/ece/dsel/hadoop_prepartitioning/phase1/Driver1.class
 gr/uth/ece/dsel/hadoop_prepartitioning/phase2/Driver2.class
-gr/uth/ece/dsel/hadoop_prepartitioning/util/takeSample/SampleReducer$1.class
 gr/uth/ece/dsel/hadoop_prepartitioning/partition/Driver_partition.class
 gr/uth/ece/dsel/hadoop_prepartitioning/phase2/Driver2$Metrics.class
 gr/uth/ece/dsel/hadoop_prepartitioning/preliminary/QuadtreeArray.class

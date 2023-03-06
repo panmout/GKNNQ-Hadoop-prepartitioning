@@ -28,7 +28,7 @@ public class CropDataset
 		double ymin = Double.parseDouble(args[7]);
 		double ymax = Double.parseDouble(args[8]);
 		
-		ArrayList<Point> points = new ArrayList<Point>();
+		ArrayList<Point> points = new ArrayList<>();
 		
 		FileSystem fs;
 		Path pt;
